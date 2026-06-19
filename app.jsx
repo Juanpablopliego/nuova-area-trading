@@ -34,14 +34,7 @@ function App() {
 
   const lead = window.PATHS[t.accentLead] ? window.BRAND[t.accentLead] : window.BRAND.saffron;
 
-  // Journey shows all paths; calendar is trading-bound.
-  const tradingPaths = ['forex', 'commodity', 'opzioni', 'cripto', 'etf'];
-  const immobiliPaths = ['flipping', 'aste', 'stralci', 'affitti'];
-  const pathGroups = view === 'calendar'
-    ? [tradingPaths]
-    : [tradingPaths, immobiliPaths];
-
-  const changeView = (v) => { setView(v); setFilter('all'); };
+  const changeView = (v) => setView(v);
 
   return (
     <div
@@ -72,20 +65,6 @@ function App() {
           <span>Decisioni della call</span>
           <span className={'toggle-chevron' + (decisionsOpen ? ' open' : '')}>‣</span>
         </button>
-        <span className="filter-div" aria-hidden="true" />
-        <span className="filter-label">Percorso</span>
-        <button className={'pill pill-all' + (filter === 'all' ? ' is-active' : '')} onClick={() => setFilter('all')}>
-          Tutti
-        </button>
-        {pathGroups.map((group, gi) => (
-          <React.Fragment key={gi}>
-            {gi > 0 && <span className="filter-div" aria-hidden="true" />}
-            {group.map(id => {
-              const p = window.PATHS[id];
-              return <PathPill key={p.id} path={p} active={filter === p.id} onClick={() => setFilter(filter === p.id ? 'all' : p.id)} />;
-            })}
-          </React.Fragment>
-        ))}
         <span className="filter-hint">{view === 'journey' ? 'Clicca un box per i dettagli' : 'Clicca un evento per i dettagli'}</span>
       </div>
 
