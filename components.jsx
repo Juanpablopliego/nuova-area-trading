@@ -1,15 +1,11 @@
 // components.jsx — shared UI primitives for the ABTG Trading dashboard.
 const { useState, useEffect, useRef } = React;
 
-// ── Brand wordmark (text-based, on-brand) ────────────────────────────
+// ── Brand wordmark (official logo) ───────────────────────────────────
 function Wordmark() {
   return (
     <div className="wordmark">
-      <span className="wm-mark" aria-hidden="true" />
-      <span className="wm-text">
-        <strong>ALFIO BARDOLLA</strong>
-        <em>TRAINING GROUP</em>
-      </span>
+      <img className="wm-logo" src="assets/logo-abtg.png" alt="Alfio Bardolla Training Group" />
     </div>
   );
 }

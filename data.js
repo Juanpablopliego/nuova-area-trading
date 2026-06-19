@@ -7,16 +7,32 @@ window.BRAND = {
   white: '#FFFFFF',
 };
 
-// Path color-coding, kept on-brand (orange + green + neutral) + a warning tone for cripto.
-window.PATHS = {
-  forex:     { id: 'forex',     label: 'Forex',     color: '#EF7B10', soft: '#FDEEDC', ink: '#A8540A' },
-  commodity: { id: 'commodity', label: 'Commodity', color: '#009C4E', soft: '#DCF1E6', ink: '#04693A' },
-  opzioni:   { id: 'opzioni',   label: 'Opzioni',   color: '#2C2E38', soft: '#E7E8EC', ink: '#2C2E38' },
-  cripto:    { id: 'cripto',    label: 'Cripto',    color: '#C77A12', soft: '#FBF1DF', ink: '#8A5410', warning: true },
-};
+// Distinct, harmonious color per path — soft tint + ink shade derived from each.
+(function () {
+  const hx = h => h.replace('#', '').match(/../g).map(x => parseInt(x, 16));
+  const toHex = a => '#' + a.map(x => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, '0')).join('');
+  const mix = (hex, t, amt) => { const c = hx(hex); return toHex(c.map((v, i) => v + (t[i] - v) * amt)); };
+  const WHITE = [255, 255, 255], DARK = [22, 24, 32];
+  const RAW = {
+    forex:     ['Forex', '#EF7B10'],
+    commodity: ['Commodity', '#1F9E55'],
+    opzioni:   ['Opzioni', '#2D6CB5'],
+    cripto:    ['Cripto', '#B8862A', true],
+    etf:       ['ETF', '#11A0A6'],
+    flipping:  ['Flipping', '#D6494E'],
+    aste:      ['Aste', '#7E57C2'],
+    stralci:   ['Stralci', '#9C6FD9'],
+    affitti:   ['Affitti', '#17A697'],
+  };
+  const P = {};
+  for (const id in RAW) {
+    const [label, color, warning] = RAW[id];
+    P[id] = { id, label, color, soft: mix(color, WHITE, 0.88), ink: mix(color, DARK, 0.60), warning: !!warning };
+  }
+  window.PATHS = P;
+})();
 
-// ── The linear spine (entry funnel everyone shares) ──────────────────
-window.SPINE = [
+window.SPINE_SHARED = [
   {
     id: 'lead',
     kind: 'spine',
@@ -33,26 +49,29 @@ window.SPINE = [
     kind: 'spine',
     title: 'Wake Up Call',
     badge: '01',
-    summary: 'Primo contatto che apre l’ingresso unico sul Forex.',
+    summary: 'Primo contatto. Da qui il lead sceglie l\'area di formazione.',
     details: [
-      'Evento d’ingresso che indirizza tutti verso l’entry level.',
-      'Crea consapevolezza e motivazione iniziale.',
+      'Evento d\'ingresso che crea consapevolezza e motivazione.',
+      'Indirizza verso una delle due aree: Trading o Immobili.',
     ],
   },
+];
+
+window.SPINE_TRADING = [
   {
     id: 'starter',
     kind: 'spine',
     title: 'Forex Starter Program',
-    sub: 'Entry level · durata 3 mesi',
+    sub: 'Risultati in 3 mesi · durata prodotto 12 mesi',
     badge: '02',
     accent: 'forex',
     highlight: true,
-    summary: 'L’unico punto di ingresso. Porta il cliente rapidamente alla prima operazione.',
+    summary: 'L\'unico punto di ingresso. Porta il cliente rapidamente alla prima operazione.',
     details: [
       '4–5 video preparatori',
       'Setup piattaforma',
       'Setup conto demo',
-      'Introduzione strategia Break & Bed',
+      'Introduzione strategia Breaking Band',
       'Nessuna teoria inutile',
     ],
     extra: { label: '+ 2 LIVE a settimana', value: 'con Leonardo' },
@@ -75,15 +94,50 @@ window.SPINE = [
   },
 ];
 
-// ── The branches after the Assessment ───────────────────────────────
+window.SPINE_IMMOBILI = [
+  {
+    id: 'imm-starter',
+    kind: 'spine',
+    title: 'Immobili Starter Program',
+    sub: 'Percorso di 3 mesi · durata prodotto 12 mesi',
+    badge: '02',
+    accent: 'flipping',
+    highlight: true,
+    summary: 'Punto di ingresso all\'immobiliare. Percorso equivalente, porta rapidamente all\'operatività.',
+    details: [
+      'Fondamenti dell\'investimento immobiliare',
+      'Setup operativo',
+      'Prime strategie',
+      'Nessuna teoria inutile',
+    ],
+    extra: { label: '+ 2 LIVE a settimana', value: 'in diretta' },
+  },
+  {
+    id: 'imm-assessment',
+    kind: 'spine',
+    title: 'Assessment Finale',
+    sub: 'Call 1-to-1 con Buddy',
+    badge: '03',
+    accent: 'aste',
+    summary: 'Tappa obbligatoria. Profila l\'investitore e prescrive la strategia.',
+    details: [
+      'Call 1-to-1 con Buddy',
+      'Analisi obiettivi',
+      'Profilazione investitore',
+      'Prescrizione percorso successivo',
+    ],
+    note: 'Momento commerciale naturale',
+  },
+];
+
 window.BRANCHES = [
   {
     path: 'forex',
     title: 'Rimane nel Forex',
     steps: [
-      { title: 'Group Coaching Forex', detail: 'Continua sul mercato d’ingresso in gruppo.' },
+      { title: 'Evento Forex', detail: 'Evento dedicato sul mercato d\'ingresso.' },
+      { title: 'Group Coaching Forex', detail: 'Continua sul mercato d\'ingresso in gruppo.' },
       { title: 'Forex Trading Diary', detail: 'Disciplina e tracciamento delle operazioni.' },
-      { title: 'Trading Camp', detail: 'Accelerazione e community.' },
     ],
   },
   {
@@ -114,9 +168,17 @@ window.BRANCHES = [
       { title: 'Crypto Trading Diary', detail: 'Percepito poco sostenibile e troppo legato al momento di mercato.', struck: true },
     ],
   },
+  {
+    path: 'etf',
+    title: 'Si interessa agli ETF',
+    steps: [
+      { title: 'Evento ETF', detail: 'Evento dedicato di scoperta del mercato.' },
+      { title: 'Group Coaching', detail: 'Approfondimento guidato in gruppo.' },
+      { title: 'ETF Trading Diary', detail: 'Non ancora disponibile.', struck: true, strikeTag: 'non esiste' },
+    ],
+  },
 ];
 
-// Trading Camp as cross-cutting accelerator outcome
 window.CAMP = {
   title: 'Trading Camp',
   sub: 'Acceleratore — non acquisizione',
@@ -125,25 +187,70 @@ window.CAMP = {
   outcome: 'Community + Diversificazione',
 };
 
-// ── Calendar / flusso Live ───────────────────────────────────────────
+window.BRANCHES_IMMOBILI = [
+  {
+    path: 'flipping',
+    title: 'Resta sul mercato libero',
+    steps: [
+      { title: 'Evento Flipping Advance', detail: 'Coaching privato sul mercato libero.' },
+      { title: 'Evento dedicato', detail: 'DA STRUTTURARE' },
+      { title: 'Deal Diary', detail: 'Tracciamento operazioni.' },
+    ],
+  },
+  {
+    path: 'aste',
+    title: 'Si specializza nelle Aste',
+    steps: [
+      { title: 'Evento Aste Power', detail: 'Percorso di specializzazione sull\'asta.' },
+      { title: 'Evento dedicato', detail: 'DA STRUTTURARE' },
+      { title: 'Deal Diary', detail: 'Tracciamento operazioni.' },
+    ],
+  },
+  {
+    path: 'stralci',
+    title: 'Si specializza negli Stralci',
+    steps: [
+      { title: 'Evento Stralci Advance', detail: 'Saldo e stralcio, alta marginalità.' },
+      { title: 'Evento dedicato', detail: 'DA STRUTTURARE' },
+      { title: 'Deal Diary', detail: 'Tracciamento operazioni.' },
+    ],
+  },
+  {
+    path: 'affitti',
+    title: 'Si specializza negli Affitti',
+    steps: [
+      { title: 'Evento Rent Advance', detail: 'Rent to rent, property, affitti lunghi.' },
+      { title: 'Evento dedicato', detail: 'DA STRUTTURARE' },
+      { title: 'Deal Diary', detail: 'Tracciamento operazioni.' },
+    ],
+  },
+];
+
+window.RICORRENTI = {
+  title: 'Real Estate Camp',
+  sub: 'Acceleratore — community e affiancamento',
+  summary: 'Dopo la biforcazione tutti i percorsi confluiscono nel programma Real Estate Camp.',
+  details: ['Group Coaching', 'Community', 'Affiancamento operativo'],
+  outcome: 'Continuità + Community',
+};
+
 window.CALENDAR = {
   months: ['Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
   weeksPerMonth: 4,
   livesPerWeek: 2,
   liveLabel: 'Live Forex',
   coach: 'Leonardo',
-  // Diversification events placed on a (monthIndex, week) grid
   events: [
     { id: 'ev-commodity', path: 'commodity', label: 'Evento Commodity', month: 0, week: 2 },
     { id: 'ev-opzioni',   path: 'opzioni',   label: 'Evento Opzioni',   month: 1, week: 1 },
     { id: 'ev-cripto',    path: 'cripto',    label: 'Evento Cripto',    month: 2, week: 2 },
+    { id: 'ev-etf',       path: 'etf',       label: 'Evento ETF',       month: 2, week: 0 },
     { id: 'ev-camp',      path: 'forex',     label: 'Trading Camp',     month: 3, week: 1, camp: true },
   ],
   note: 'Il cliente può entrare in qualsiasi momento: guarda i video preparatori, si allinea rapidamente, entra nel flusso già attivo.',
   replaces: 'Sostituisce i grandi master iniziali da 80+ ore.',
 };
 
-// ── Decisioni emerse nella call ──────────────────────────────────────
 window.DECISIONS = [
   {
     id: 'd1', status: 'ok', title: 'Forex = unico entry level',
@@ -160,9 +267,5 @@ window.DECISIONS = [
   {
     id: 'd4', status: 'ok', title: 'Trading Camp come acceleratore',
     points: ['Non per acquisire clienti', 'Community e networking', 'Diversificazione', 'Scoperta di altri mercati'],
-  },
-  {
-    id: 'd5', status: 'warning', title: 'Cripto da ripensare',
-    points: ['Crypto Trading Diary → da valutare', 'Percepito poco sostenibile', 'Troppo dipendente dal momento di mercato', 'Possibile sostituzione: Crypto Group Coaching (Andrea Garagiola)'],
   },
 ];

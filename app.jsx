@@ -30,8 +30,18 @@ function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [view, setView] = useStateA('journey');
   const [filter, setFilter] = useStateA('all');
+  const [decisionsOpen, setDecisionsOpen] = useStateA(false);
 
   const lead = window.PATHS[t.accentLead] ? window.BRAND[t.accentLead] : window.BRAND.saffron;
+
+  // Journey shows all paths; calendar is trading-bound.
+  const tradingPaths = ['forex', 'commodity', 'opzioni', 'cripto', 'etf'];
+  const immobiliPaths = ['flipping', 'aste', 'stralci', 'affitti'];
+  const pathGroups = view === 'calendar'
+    ? [tradingPaths]
+    : [tradingPaths, immobiliPaths];
+
+  const changeView = (v) => { setView(v); setFilter('all'); };
 
   return (
     <div
@@ -43,40 +53,52 @@ function App() {
       <header className="topbar">
         <Wordmark />
         <div className="topbar-title">
-          <h1>Nuova Area Trading</h1>
-          <p>Struttura approvata in call · entry unico sul Forex</p>
+          <h1>Nuova Area Formazione</h1>
+          <p>Lead → Wake Up Call → due aree: Trading &amp; Immobili</p>
         </div>
         <div className="viewtoggle">
-          <button className={view === 'journey' ? 'on' : ''} onClick={() => setView('journey')}>
+          <button className={view === 'journey' ? 'on' : ''} onClick={() => changeView('journey')}>
             <Glyph type="route" size={15} color={view === 'journey' ? '#fff' : window.BRAND.onyx} />Journey
           </button>
-          <button className={view === 'calendar' ? 'on' : ''} onClick={() => setView('calendar')}>
+          <button className={view === 'calendar' ? 'on' : ''} onClick={() => changeView('calendar')}>
             <Glyph type="cal" size={15} color={view === 'calendar' ? '#fff' : window.BRAND.onyx} />Calendario
           </button>
         </div>
       </header>
 
       <div className="filterbar">
+        <button className="decisions-toggle" onClick={() => setDecisionsOpen(!decisionsOpen)}>
+          <Glyph type="flag" size={15} color={window.BRAND.saffron} />
+          <span>Decisioni della call</span>
+          <span className={'toggle-chevron' + (decisionsOpen ? ' open' : '')}>‣</span>
+        </button>
+        <span className="filter-div" aria-hidden="true" />
         <span className="filter-label">Percorso</span>
         <button className={'pill pill-all' + (filter === 'all' ? ' is-active' : '')} onClick={() => setFilter('all')}>
           Tutti
         </button>
-        {Object.values(window.PATHS).map(p => (
-          <PathPill key={p.id} path={p} active={filter === p.id} onClick={() => setFilter(filter === p.id ? 'all' : p.id)} />
+        {pathGroups.map((group, gi) => (
+          <React.Fragment key={gi}>
+            {gi > 0 && <span className="filter-div" aria-hidden="true" />}
+            {group.map(id => {
+              const p = window.PATHS[id];
+              return <PathPill key={p.id} path={p} active={filter === p.id} onClick={() => setFilter(filter === p.id ? 'all' : p.id)} />;
+            })}
+          </React.Fragment>
         ))}
         <span className="filter-hint">{view === 'journey' ? 'Clicca un box per i dettagli' : 'Clicca un evento per i dettagli'}</span>
       </div>
 
-      <div className={'layout' + (t.showDecisions ? '' : ' no-rail')}>
+      <div className={'layout' + (decisionsOpen ? '' : ' no-rail')}>
         <main className="stage">
           {view === 'journey' ? <JourneyView filter={filter} /> : <CalendarView filter={filter} />}
         </main>
 
-        {t.showDecisions && (
-          <aside className="rail">
+        {decisionsOpen && (
+          <aside className="rail expanded">
             <div className="rail-head">
-              <Glyph type="flag" size={16} color={window.BRAND.saffron} />
               <h2>Decisioni della call</h2>
+              <button className="rail-close" onClick={() => setDecisionsOpen(false)}>✕</button>
             </div>
             {window.DECISIONS.map(d => <DecisionCard key={d.id} d={d} />)}
           </aside>
