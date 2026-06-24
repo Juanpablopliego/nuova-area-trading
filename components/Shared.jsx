@@ -1,17 +1,16 @@
-// components.jsx — shared UI primitives for the ABTG Trading dashboard.
-const { useState, useEffect, useRef } = React;
+'use client';
 
 // ── Brand wordmark (official logo) ───────────────────────────────────
-function Wordmark() {
+export function Wordmark() {
   return (
     <div className="wordmark">
-      <img className="wm-logo" src="assets/logo-abtg.png" alt="Alfio Bardolla Training Group" />
+      <img className="wm-logo" src="/assets/logo-abtg.png" alt="Alfio Bardolla Training Group" />
     </div>
   );
 }
 
 // ── Minimal geometric icons (kept simple on purpose) ─────────────────
-function Glyph({ type, color = 'currentColor', size = 18 }) {
+export function Glyph({ type, color = 'currentColor', size = 18 }) {
   const s = { width: size, height: size, display: 'block' };
   switch (type) {
     case 'play':
@@ -38,7 +37,7 @@ function Glyph({ type, color = 'currentColor', size = 18 }) {
 }
 
 // ── Vertical connector with arrowhead ────────────────────────────────
-function Connector({ active, color = '#C9CCD6' }) {
+export function Connector({ active, color = '#C9CCD6' }) {
   return (
     <div className={'connector' + (active ? ' is-active' : '')} aria-hidden="true">
       <span className="conn-line" style={active ? { background: color } : null} />
@@ -48,7 +47,7 @@ function Connector({ active, color = '#C9CCD6' }) {
 }
 
 // ── Path filter pill ─────────────────────────────────────────────────
-function PathPill({ path, active, onClick }) {
+export function PathPill({ path, active, onClick }) {
   return (
     <button
       className={'pill' + (active ? ' is-active' : '')}
@@ -61,5 +60,3 @@ function PathPill({ path, active, onClick }) {
     </button>
   );
 }
-
-Object.assign(window, { Wordmark, Glyph, Connector, PathPill });

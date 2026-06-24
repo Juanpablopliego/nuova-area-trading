@@ -1,9 +1,14 @@
-// calendar.jsx — Calendario view: continuous Live Forex flow + diversification events.
-const { useState: useStateC } = React;
+'use client';
+import { useState } from 'react';
+import { BRAND, PATHS } from '@/lib/brand';
+import { useContentRoot } from './ContentProvider';
+import { EditableText } from './EditableText';
+import { Glyph } from './Shared';
 
-function CalendarView({ filter }) {
-  const cal = window.CALENDAR;
-  const [activeEvent, setActiveEvent] = useStateC(null);
+export function CalendarView({ filter }) {
+  const content = useContentRoot();
+  const cal = content.CALENDAR;
+  const [activeEvent, setActiveEvent] = useState(null);
 
   const weeks = [];
   cal.months.forEach((m, mi) => {
@@ -12,19 +17,21 @@ function CalendarView({ filter }) {
     }
   });
 
-  const eventAt = (mi, w) => cal.events.find(e => e.month === mi && e.week === w);
+  const eventAt = (mi, w) => {
+    const idx = cal.events.findIndex((e) => e.month === mi && e.week === w);
+    return idx === -1 ? null : { ev: cal.events[idx], idx };
+  };
   const eventVisible = (e) => filter === 'all' || filter === e.path;
 
   return (
     <div className="calendar">
       <div className="cal-intro">
         <div className="cal-engine-tag"><Glyph type="play" size={13} color="#fff" />Elemento centrale</div>
-        <p>Le live Forex diventano un <strong>flusso continuo</strong>. {cal.note}</p>
+        <p>Le live Forex diventano un <strong>flusso continuo</strong>. <EditableText path={['CALENDAR', 'note']} /></p>
       </div>
 
       <div className="cal-scroll">
         <div className="cal-grid" style={{ gridTemplateColumns: `120px repeat(${weeks.length}, 1fr)` }}>
-          {/* Month axis row */}
           <div className="cal-corner" />
           {cal.months.map((m, mi) => (
             <div key={m} className="cal-month" style={{ gridColumn: `span ${cal.weeksPerMonth}` }}>
@@ -32,12 +39,12 @@ function CalendarView({ filter }) {
             </div>
           ))}
 
-          {/* Events lane */}
-          <div className="cal-lane-label"><Glyph type="diamond" size={13} color={window.BRAND.onyx} />Eventi diversificazione</div>
+          <div className="cal-lane-label"><Glyph type="diamond" size={13} color={BRAND.onyx} />Eventi diversificazione</div>
           {weeks.map((wk) => {
-            const ev = eventAt(wk.monthIndex, wk.week);
-            if (!ev) return <div key={'e' + wk.globalWeek} className="cal-evcell" />;
-            const p = window.PATHS[ev.path];
+            const found = eventAt(wk.monthIndex, wk.week);
+            if (!found) return <div key={'e' + wk.globalWeek} className="cal-evcell" />;
+            const { ev, idx } = found;
+            const p = PATHS[ev.path];
             const vis = eventVisible(ev);
             return (
               <div key={'e' + wk.globalWeek} className="cal-evcell">
@@ -47,15 +54,14 @@ function CalendarView({ filter }) {
                   onClick={() => setActiveEvent(activeEvent === ev.id ? null : ev.id)}
                 >
                   <span className="ev-dot" style={{ background: p.color }} />
-                  <span className="ev-label">{ev.label}</span>
+                  <span className="ev-label"><EditableText path={['CALENDAR', 'events', idx, 'label']} /></span>
                   {p.warning && <Glyph type="warning" size={12} color={p.ink} />}
                 </button>
               </div>
             );
           })}
 
-          {/* Live Forex flow lane */}
-          <div className="cal-lane-label flow"><Glyph type="play" size={12} color={window.BRAND.saffron} />Flusso Live Forex</div>
+          <div className="cal-lane-label flow"><Glyph type="play" size={12} color={BRAND.saffron} />Flusso Live Forex</div>
           {weeks.map((wk) => (
             <div key={'l' + wk.globalWeek} className="cal-weekcell">
               <span className="cal-weeknum">S{wk.globalWeek + 1}</span>
@@ -71,7 +77,6 @@ function CalendarView({ filter }) {
         </div>
       </div>
 
-      {/* Entry-anywhere + replaces note */}
       <div className="cal-footnotes">
         <div className="cal-entry">
           <span className="cal-entry-icon"><Glyph type="arrow" size={16} color="#fff" /></span>
@@ -81,31 +86,29 @@ function CalendarView({ filter }) {
           </div>
         </div>
         <div className="cal-replace">
-          <Glyph type="check" size={16} color={window.BRAND.jade} />
-          <p>{cal.replaces}</p>
+          <Glyph type="check" size={16} color={BRAND.jade} />
+          <p><EditableText path={['CALENDAR', 'replaces']} /></p>
         </div>
       </div>
 
-      {/* Event detail popover area */}
       {activeEvent && (() => {
-        const ev = cal.events.find(e => e.id === activeEvent);
-        const p = window.PATHS[ev.path];
+        const idx = cal.events.findIndex((e) => e.id === activeEvent);
+        const ev = cal.events[idx];
+        const p = PATHS[ev.path];
         return (
           <div className="cal-detail" style={{ '--pc': p.color, '--ps': p.soft, '--pi': p.ink }}>
             <div className="cal-detail-head">
               <span className="ev-dot" style={{ background: p.color }} />
-              <strong>{ev.label}</strong>
+              <strong><EditableText path={['CALENDAR', 'events', idx, 'label']} /></strong>
               {p.warning && <span className="cal-detail-warn"><Glyph type="warning" size={13} color={p.ink} />decisione in sospeso</span>}
               <button className="cal-detail-close" onClick={() => setActiveEvent(null)}>×</button>
             </div>
             <p>{ev.camp
               ? 'Acceleratore avanzato per community, networking e diversificazione — non usato per acquisizione.'
-              : `Evento dedicato che fa scoprire il mercato ${p.label} senza complicare l’entry level. Alimenta Group Coaching e Trading Diary.`}</p>
+              : `Evento dedicato che fa scoprire il mercato ${p.label} senza complicare l'entry level. Alimenta Group Coaching e Trading Diary.`}</p>
           </div>
         );
       })()}
     </div>
   );
 }
-
-Object.assign(window, { CalendarView });

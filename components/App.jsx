@@ -1,15 +1,22 @@
-// app.jsx — main App: header, view toggle, filters, decisions rail, tweaks.
-const { useState: useStateA } = React;
+'use client';
+import { useState } from 'react';
+import { BRAND, PATHS } from '@/lib/brand';
+import { useContentRoot } from './ContentProvider';
+import { EditableText } from './EditableText';
+import { Glyph, Wordmark } from './Shared';
+import { JourneyView } from './Journey';
+import { CalendarView } from './CalendarView';
+import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakToggle, TweakSlider } from './TweaksPanel';
 
-const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "cardStyle": "morbido",
-  "density": "regular",
-  "accentLead": "saffron",
-  "showDecisions": true,
-  "fontScale": 100
-}/*EDITMODE-END*/;
+const TWEAK_DEFAULTS = {
+  cardStyle: 'morbido',
+  density: 'regular',
+  accentLead: 'saffron',
+  showDecisions: true,
+  fontScale: 100,
+};
 
-function DecisionCard({ d }) {
+function DecisionCard({ d, path }) {
   const warn = d.status === 'warning';
   return (
     <div className={'dcard' + (warn ? ' warn' : '')}>
@@ -17,31 +24,30 @@ function DecisionCard({ d }) {
         <span className={'dcard-icon' + (warn ? ' warn' : '')}>
           <Glyph type={warn ? 'warning' : 'check'} size={15} color="#fff" />
         </span>
-        <h4>{d.title}</h4>
+        <h4><EditableText path={[...path, 'title']} /></h4>
       </div>
       <ul>
-        {d.points.map((p, i) => <li key={i}>{p}</li>)}
+        {d.points.map((p, i) => <li key={i}><EditableText path={[...path, 'points', i]} /></li>)}
       </ul>
     </div>
   );
 }
 
-function App() {
+export function App() {
+  const content = useContentRoot();
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [view, setView] = useStateA('journey');
-  const [filter, setFilter] = useStateA('all');
-  const [decisionsOpen, setDecisionsOpen] = useStateA(false);
+  const [view, setView] = useState('journey');
+  const [filter] = useState('all');
+  const [decisionsOpen, setDecisionsOpen] = useState(false);
 
-  const lead = window.PATHS[t.accentLead] ? window.BRAND[t.accentLead] : window.BRAND.saffron;
-
-  const changeView = (v) => setView(v);
+  const lead = PATHS[t.accentLead] ? BRAND[t.accentLead] : BRAND.saffron;
 
   return (
     <div
       className="app"
       data-cardstyle={t.cardStyle}
       data-density={t.density}
-      style={{ '--lead': lead, fontSize: (t.fontScale / 100) + 'rem' }}
+      style={{ '--lead': lead, fontSize: t.fontScale / 100 + 'rem' }}
     >
       <header className="topbar">
         <Wordmark />
@@ -50,18 +56,18 @@ function App() {
           <p>Lead → Wake Up Call → due aree: Trading &amp; Immobili</p>
         </div>
         <div className="viewtoggle">
-          <button className={view === 'journey' ? 'on' : ''} onClick={() => changeView('journey')}>
-            <Glyph type="route" size={15} color={view === 'journey' ? '#fff' : window.BRAND.onyx} />Journey
+          <button className={view === 'journey' ? 'on' : ''} onClick={() => setView('journey')}>
+            <Glyph type="route" size={15} color={view === 'journey' ? '#fff' : BRAND.onyx} />Journey
           </button>
-          <button className={view === 'calendar' ? 'on' : ''} onClick={() => changeView('calendar')}>
-            <Glyph type="cal" size={15} color={view === 'calendar' ? '#fff' : window.BRAND.onyx} />Calendario
+          <button className={view === 'calendar' ? 'on' : ''} onClick={() => setView('calendar')}>
+            <Glyph type="cal" size={15} color={view === 'calendar' ? '#fff' : BRAND.onyx} />Calendario
           </button>
         </div>
       </header>
 
       <div className="filterbar">
         <button className="decisions-toggle" onClick={() => setDecisionsOpen(!decisionsOpen)}>
-          <Glyph type="flag" size={15} color={window.BRAND.saffron} />
+          <Glyph type="flag" size={15} color={BRAND.saffron} />
           <span>Decisioni della call</span>
           <span className={'toggle-chevron' + (decisionsOpen ? ' open' : '')}>‣</span>
         </button>
@@ -79,7 +85,7 @@ function App() {
               <h2>Decisioni della call</h2>
               <button className="rail-close" onClick={() => setDecisionsOpen(false)}>✕</button>
             </div>
-            {window.DECISIONS.map(d => <DecisionCard key={d.id} d={d} />)}
+            {content.DECISIONS.map((d, i) => <DecisionCard key={d.id} d={d} path={['DECISIONS', i]} />)}
           </aside>
         )}
       </div>
@@ -105,5 +111,3 @@ function App() {
     </div>
   );
 }
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);

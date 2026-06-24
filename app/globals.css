@@ -367,3 +367,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .branches { grid-template-columns: 1fr; }
   .cal-footnotes { grid-template-columns: 1fr; }
 }
+
+/* ── Inline editable text ─────────────────────────────── */
+.editable {
+  border-radius: 4px;
+  outline: none;
+  cursor: text;
+}
+.editable:hover {
+  background: rgba(239, 123, 16, 0.08);
+  box-shadow: 0 0 0 1px rgba(239, 123, 16, 0.25);
+}
+.editable:focus {
+  background: rgba(239, 123, 16, 0.12);
+  box-shadow: 0 0 0 1.5px #EF7B10;
+}
