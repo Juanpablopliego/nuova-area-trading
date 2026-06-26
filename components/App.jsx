@@ -53,7 +53,7 @@ export function App() {
         <Wordmark />
         <div className="topbar-title">
           <h1>Nuova Area Formazione</h1>
-          <p>Lead → Wake Up Call → due aree: Trading &amp; Immobili</p>
+          <p>Lead → Wake Up Call → tre aree: Trading, Immobili &amp; Mindset</p>
         </div>
         <div className="viewtoggle">
           <button className={view === 'journey' ? 'on' : ''} onClick={() => setView('journey')}>

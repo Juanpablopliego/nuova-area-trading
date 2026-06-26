@@ -165,9 +165,14 @@ export function JourneyView({ filter }) {
     spine: content.SPINE_IMMOBILI, spinePath: 'SPINE_IMMOBILI', branches: content.BRANCHES_IMMOBILI, branchesPath: 'BRANCHES_IMMOBILI',
     tail: content.RICORRENTI, tailPath: 'RICORRENTI',
   };
+  const mindset = {
+    id: 'mindset', label: 'Percorso Mindset', tagline: 'Money mindset → libertà', color: '#0EA5A4', diamond: '#0EA5A4',
+    spine: content.SPINE_MINDSET, spinePath: 'SPINE_MINDSET', branches: content.BRANCHES_MINDSET, branchesPath: 'BRANCHES_MINDSET',
+    tail: content.FUTURE_CAMP, tailPath: 'FUTURE_CAMP',
+  };
 
-  const tourStops = [...shared.map((s) => s.id), 'trading', 'immobili'];
-  const stopLabels = [...shared.map((s) => s.title), trading.label, immobili.label];
+  const tourStops = [...shared.map((s) => s.id), 'trading', 'immobili', 'mindset'];
+  const stopLabels = [...shared.map((s) => s.title), trading.label, immobili.label, mindset.label];
   const litId = tour ? tourStops[step] : null;
   const tint = (spec) => `color-mix(in srgb, ${spec.color} 4%, #fff)`;
   const dimOf = (spec) => tour && litId !== spec.id;
@@ -248,11 +253,15 @@ export function JourneyView({ filter }) {
           <p><EditableText path={[spec.tailPath, 'sub']} /></p>
         </div>
       </div>
-      <p className="camp-summary"><EditableText path={[spec.tailPath, 'summary']} /></p>
-      <div className="camp-tags">
-        {spec.tail.details.map((d, i) => <span key={i}><EditableText path={[spec.tailPath, 'details', i]} /></span>)}
-      </div>
-      <div className="camp-outcome"><Glyph type="arrow" size={14} color="#fff" /><EditableText path={[spec.tailPath, 'outcome']} /></div>
+      {spec.tail.summary && <p className="camp-summary"><EditableText path={[spec.tailPath, 'summary']} /></p>}
+      {spec.tail.details.length > 0 && (
+        <div className="camp-tags">
+          {spec.tail.details.map((d, i) => <span key={i}><EditableText path={[spec.tailPath, 'details', i]} /></span>)}
+        </div>
+      )}
+      {spec.tail.outcome && (
+        <div className="camp-outcome"><Glyph type="arrow" size={14} color="#fff" /><EditableText path={[spec.tailPath, 'outcome']} /></div>
+      )}
     </div>
   );
 
@@ -302,23 +311,28 @@ export function JourneyView({ filter }) {
           </Fragment>
         ))}
 
-        <div className="fork-label"><span>Due percorsi paralleli</span></div>
+        <div className="fork-label"><span>Tre percorsi paralleli</span></div>
 
         <div className="tracks-grid">
           <Cell tint={tint(trading)} top dim={dimOf(trading)} lit={litOf(trading)}>{Banner(trading, setStopRef('trading'))}</Cell>
           <Cell tint={tint(immobili)} top dim={dimOf(immobili)} lit={litOf(immobili)}>{Banner(immobili, setStopRef('immobili'))}</Cell>
+          <Cell tint={tint(mindset)} top dim={dimOf(mindset)} lit={litOf(mindset)}>{Banner(mindset, setStopRef('mindset'))}</Cell>
 
           <Cell tint={tint(trading)} dim={dimOf(trading)}>{NodeStage(trading.spine[0], [trading.spinePath, 0])}</Cell>
           <Cell tint={tint(immobili)} dim={dimOf(immobili)}>{NodeStage(immobili.spine[0], [immobili.spinePath, 0])}</Cell>
+          <Cell tint={tint(mindset)} dim={dimOf(mindset)}>{NodeStage(mindset.spine[0], [mindset.spinePath, 0])}</Cell>
 
           <Cell tint={tint(trading)} dim={dimOf(trading)}>{NodeStage(trading.spine[1], [trading.spinePath, 1])}</Cell>
           <Cell tint={tint(immobili)} dim={dimOf(immobili)}>{NodeStage(immobili.spine[1], [immobili.spinePath, 1])}</Cell>
+          <Cell tint={tint(mindset)} dim={dimOf(mindset)} />
 
           <Cell tint={tint(trading)} dim={dimOf(trading)}>{ForkStage()}</Cell>
           <Cell tint={tint(immobili)} dim={dimOf(immobili)}>{ForkStage()}</Cell>
+          <Cell tint={tint(mindset)} dim={dimOf(mindset)}>{ForkStage()}</Cell>
 
           <Cell tint={tint(trading)} dim={dimOf(trading)}>{BranchStageHorizontal(trading)}</Cell>
           <Cell tint={tint(immobili)} dim={dimOf(immobili)}>{BranchStageHorizontal(immobili)}</Cell>
+          <Cell tint={tint(mindset)} dim={dimOf(mindset)}>{BranchStageHorizontal(mindset)}</Cell>
 
           <Cell tint={tint(trading)} dim={dimOf(trading)}>
             {CampStage(trading)}
@@ -346,6 +360,7 @@ export function JourneyView({ filter }) {
               </div>
             </div>
           </Cell>
+          <Cell tint={tint(mindset)} bot dim={dimOf(mindset)}>{CampStage(mindset)}</Cell>
         </div>
       </div>
     </div>
