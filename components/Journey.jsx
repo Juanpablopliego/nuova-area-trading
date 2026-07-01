@@ -39,6 +39,14 @@ function NodeCard({ node, path, expanded, onToggle, dim, lit, accentColor, domRe
               <span><EditableText path={[...path, 'extra', 'value']} /></span>
             </div>
           )}
+          {node.bonus && (
+            <div className="node-bonus">
+              <span className="node-bonus-tag">BONUS</span>
+              <Glyph type="diamond" size={13} color="#009C4E" />
+              <strong><EditableText path={[...path, 'bonus', 'label']} /></strong>
+              <span><EditableText path={[...path, 'bonus', 'value']} /></span>
+            </div>
+          )}
           {node.note && <p className="node-note"><Glyph type="flag" size={13} color={acc} /><EditableText path={[...path, 'note']} /></p>}
         </div>
       </div>
@@ -140,6 +148,7 @@ export function JourneyView({ filter }) {
   const [tour, setTour] = useState(false);
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [proposalImmobili, setProposalImmobili] = useState(1);
   const stopRefs = useRef({});
   const setStopRef = (id) => (el) => { stopRefs.current[id] = el; };
   // window.scrollTo (not scrollIntoView) so the jump only ever moves the
@@ -231,6 +240,22 @@ export function JourneyView({ filter }) {
   const ForkStage = () => (
     <div className="fork-label track-fork"><span>Biforcazione — secondo l'Assessment</span></div>
   );
+  const ProposalToggle = () => (
+    <div className="proposal-toggle">
+      <button
+        type="button"
+        className={'proposal-btn' + (proposalImmobili === 1 ? ' active' : '')}
+        style={{ '--ptc': immobili.color }}
+        onClick={() => setProposalImmobili(1)}
+      >Proposta 1</button>
+      <button
+        type="button"
+        className={'proposal-btn' + (proposalImmobili === 2 ? ' active' : '')}
+        style={{ '--ptc': immobili.color }}
+        onClick={() => setProposalImmobili(2)}
+      >Proposta 2</button>
+    </div>
+  );
   const BranchStageHorizontal = (spec) => (
     <>
       <ScrollFadeRow
@@ -319,7 +344,14 @@ export function JourneyView({ filter }) {
           <Cell tint={tint(mindset)} top dim={dimOf(mindset)} lit={litOf(mindset)}>{Banner(mindset, setStopRef('mindset'))}</Cell>
 
           <Cell tint={tint(trading)} dim={dimOf(trading)}>{NodeStage(trading.spine[0], [trading.spinePath, 0])}</Cell>
-          <Cell tint={tint(immobili)} dim={dimOf(immobili)}>{NodeStage(immobili.spine[0], [immobili.spinePath, 0])}</Cell>
+          <Cell tint={tint(immobili)} dim={dimOf(immobili)}>
+            {ProposalToggle()}
+            <Fragment key={proposalImmobili}>
+              {proposalImmobili === 1
+                ? NodeStage(content.SPINE_IMMOBILI[0], ['SPINE_IMMOBILI', 0])
+                : NodeStage(content.SPINE_IMMOBILI_P2[0], ['SPINE_IMMOBILI_P2', 0])}
+            </Fragment>
+          </Cell>
           <Cell tint={tint(mindset)} dim={dimOf(mindset)}>{NodeStage(mindset.spine[0], [mindset.spinePath, 0])}</Cell>
 
           <Cell tint={tint(trading)} dim={dimOf(trading)}>{NodeStage(trading.spine[1], [trading.spinePath, 1])}</Cell>
